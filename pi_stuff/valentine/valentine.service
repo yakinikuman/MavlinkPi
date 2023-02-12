@@ -1,0 +1,9 @@
+[Unit]
+Description=Valentine Box
+After=multi-user.target
+
+[Service]
+ExecStart=/home/pi/MavlinkPi/pi_stuff/valentine/valentine.py
+
+[Install]
+WantedBy=multi-user.target

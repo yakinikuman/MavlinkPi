@@ -13,23 +13,24 @@ cp dnsmasq.conf /etc/dnsmasq.conf
 cp hostapd.conf /etc/hostapd/hostapd.conf
 rfkill unblock wlan
 
-# Setup mavproxy, pymavlink (not needed for mavlink-router, but nice to have for other integrations)
+# Setup mavproxy, pymavlink
 pip3 install mavproxy pymavlink
-apt remove modemmanager -y
+apt remove modemmanager
 
 # Build and Setup mavlink-router
-apt install git -y
+apt install git
 git clone https://github.com/mavlink-router/mavlink-router.git
 cd mavlink-router
 git submodule update --init --recursive
-apt install meson ninja-build pkg-config gcc g++ systemd python3-pip -y
+apt install git meson ninja-build pkg-config gcc g++ systemd python3-pip
 pip3 install meson
 meson setup build .
 ninja -C build
 ninja -C build install
 mkdir /etc/mavlink-router
 cp ../main.conf /etc/mavlink-router/main.conf
-systemctl enable mavlink-router.service
 
-# Need to reboot to enable Wifi Access Point and start mavlink-router service
+### TO DO - service to start mavlink-router on boot (mavlink-router already creates one but need to enable it)
+
+# Need to reboot to enable Wifi Access Point
 systemctl reboot
