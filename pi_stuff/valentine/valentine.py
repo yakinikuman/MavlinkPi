@@ -10,6 +10,15 @@ from animation_library import *
 import RPi.GPIO as GPIO
 
 BREAK_BEAM_PIN = 22
+global ir_trigger
+ir_trigger = 0
+def break_beam_callback(channel):
+    global ir_trigger
+    ir_trigger = 1
+    #if GPIO.input(BEAM_PIN):
+    #    print("beam unbroken")
+    #else:
+    #    print("beam broken")
 
 #############################################
 # GPIO cleanup on ctrl-C
@@ -23,6 +32,7 @@ signal.signal(signal.SIGINT, signal_handler)
 # setup break-beam sensor
 GPIO.setmode(GPIO.BCM)
 GPIO.setup(BREAK_BEAM_PIN, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+GPIO.add_event_detect(BREAK_BEAM_PIN, GPIO.FALLING, callback=break_beam_callback)
 
 # States
 RAINBOW_INIT = 1
@@ -38,7 +48,8 @@ last_beam_intact = 1
 while True:
     # Check if beam has been broken (was intact and now not intact)
     beam_intact = GPIO.input(BREAK_BEAM_PIN)
-    if last_beam_intact and not beam_intact:
+    #if last_beam_intact and not beam_intact:
+    if ir_trigger:
         state = VALENTINE_RECEIVED
     last_beam_intact = beam_intact
 
@@ -58,6 +69,8 @@ while True:
         color = hsv2rgb(hue,1,1)
         A.falling_heart(num_matrices,color)
         state = RAINBOW_INIT
-    time.sleep(0.1)
+        ir_trigger = 0
+
+    #time.sleep(0.1)
 
 GPIO.cleanup()
